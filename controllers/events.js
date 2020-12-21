@@ -1,24 +1,20 @@
-var Event = require('../models/eventSchema');
+var Event = require('../services/event');
 
 var eventController = {
-    New: (req, res) => {
-        var event = new Event({
-            date: Date.now(),
-            races: [],
-            name: req.body.name
-        });
+    New: async (req, res) => {
+        const newEvent = req.body;
 
-        event.save(function(err){
-            if(err) {throw err}
-        });
-        res.json({event: event})
+        let savedEvent = await Event.Creation(newEvent);
+
+        res.json({event: savedEvent})
         
     },
-    Index: (req, res) => {
-        Event.find(function(err, events) {
-            if (err) { throw err; }
-            res.json({events: events})
-          });
+    
+    Index: async (req, res) => {
+        let events = await Event.GetAll();
+        
+        res.json(events);
+        
     }
 }
 
