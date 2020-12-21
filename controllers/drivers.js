@@ -15,9 +15,9 @@ var driverController = {
         
     },
     Index: (req, res) => {
-        Driver.find(function(err, driver) {
+        Driver.find(function(err, drivers) {
             if (err) { throw err; }
-            res.json({driver: driver})
+            res.json({drivers: drivers})
           });
     }
 }
