@@ -1,24 +1,20 @@
-var Driver = require('../models/driverSchema');
+var Driver = require('../services/driver');
 
 var driverController = {
-    New: (req, res) => {
-        var driver = new Driver({
-            email: req.body.email,
-            transponderId: req.body.transponderId,
-            name: req.body.name
-        });
+    New: async (req, res) => {
+        const newDriver = req.body;
 
-        driver.save(function(err){
-            if(err) {throw err}
-        });
-        res.json({driver: driver})
+        let savedDriver = await Driver.Signup(newDriver);
+
+        res.json({driver: savedDriver})
         
     },
-    Index: (req, res) => {
-        Driver.find(function(err, drivers) {
-            if (err) { throw err; }
-            res.json({drivers: drivers})
-          });
+    
+    Index: async (req, res) => {
+        let drivers = await Driver.GetAll();
+        
+        res.json(drivers);
+        
     }
 }
 
