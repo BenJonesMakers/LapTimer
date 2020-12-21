@@ -19,10 +19,9 @@ try {
   console.log(error);
 }
 
-
-
 var indexRouter = require('./routes/index');
 var driversRouter = require('./routes/drivers');
+var eventsRouter = require('./routes/events');
 
 var app = express();
 
@@ -38,6 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/drivers', driversRouter);
+app.use('/events', eventsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
