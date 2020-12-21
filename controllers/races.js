@@ -1,24 +1,20 @@
-var Race = require('../models/raceSchema');
+var Race = require('../services/race');
 
 var raceController = {
-    New: (req, res) => {
-        var race = new Race({
-            date: Date.now(),
-            drivers: req.body.drivers,
-            name: req.body.name
-        });
+    New: async (req, res) => {
+        const newRace = req.body;
 
-        race.save(function(err){
-            if(err) {throw err}
-        });
-        res.json({race: race})
+        let savedRace = await Race.Creation(newRace);
+
+        res.json({race: savedRace})
         
     },
-    Index: (req, res) => {
-        Race.find(function(err, races) {
-            if (err) { throw err; }
-            res.json({races: races})
-          });
+    
+    Index: async (req, res) => {
+        let races = await Race.GetAll();
+        
+        res.json(races);
+        
     }
 }
 
