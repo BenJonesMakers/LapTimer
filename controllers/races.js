@@ -4,7 +4,7 @@ var raceController = {
     New: (req, res) => {
         var race = new Race({
             date: Date.now(),
-            drivers: [],
+            drivers: req.body.drivers,
             name: req.body.name
         });
 
