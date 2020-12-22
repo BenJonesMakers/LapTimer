@@ -1,6 +1,4 @@
 var RaceModel = require('../models/raceModel');
-let serialport = require('serialport');
-const Readline = require('@serialport/parser-readline');
 var Timing = require('./timing');
 
 var Race = {
@@ -44,28 +42,14 @@ var Race = {
 
     async StartListening (portToUse) {
       
-        console.log('Im listening to port: ', portToUse);
-        
-        const port = new serialport(portToUse, {
-            baudRate: 9600,
-            stopBits: 1,
-            parity: 'none',
-            dataBits: 8,
-            flowControl: false
-          })
-        
-        const parser = port.pipe(new Readline({ delimiter: '\r\n' }));
-        parser.on('data', function(data) {
-
-            Timing.messageToObject(data);
-        })
+        Timing.openPort(portToUse)
     },
 
-    async StopListening (portToClose) {
+    async StopListening () {
         
-        console.log('Im closing port: ', portToClose);
+        console.log('Im closing port: ', Timing.getPortStatus());
         
-        port.close();
+        Timing.closePort();
 
         console.log('port closed');
        

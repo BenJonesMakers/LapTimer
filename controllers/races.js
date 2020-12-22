@@ -33,9 +33,8 @@ var raceController = {
     },
 
     StopListening: async (req, res) => {
-        portToUse = req.params.portId;
-        console.log(portToUse);
-        Race.StopListening(portToUse);
+
+        Race.StopListening();
 
         res.json('Listening stopped on ' + portToUse );
     }
