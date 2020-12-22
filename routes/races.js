@@ -7,5 +7,6 @@ router.post('/new', raceController.New)
 
 router.get('/listports', raceController.ListPorts)
 router.put('/startlistening/:portId', raceController.StartListening)
+router.put('/stoplistening/:portId', raceController.StopListening)
 
 module.exports = router;

@@ -30,10 +30,14 @@ var raceController = {
         Race.StartListening(portToUse);
 
         res.json('Listening on ' + portToUse );
-        // const ports = await Race.ListPorts()
-        // if (ports) {
-        //     res.json({commPorts: ports});
-        // }
+    },
+
+    StopListening: async (req, res) => {
+        portToUse = req.params.portId;
+        console.log(portToUse);
+        Race.StopListening(portToUse);
+
+        res.json('Listening stopped on ' + portToUse );
     }
 }
 
