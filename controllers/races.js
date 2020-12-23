@@ -19,10 +19,11 @@ var raceController = {
     },
 
     ListPorts: async (req, res) => {
-        const ports = await Timing.ListPorts()
-        if (ports) {
-            res.json({comPorts: ports});
+        let foundTransponderPort = await Timing.ListPorts();
+        if (foundTransponderPort) {
+            console.log('transponder', foundTransponderPort); 
         }
+        await res.json({comPorts: foundTransponderPort});
     },
 
     StartListening: async (req, res) => {
