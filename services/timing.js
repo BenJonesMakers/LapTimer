@@ -25,7 +25,7 @@ var Timing = {
         return messageObj;
     },
 
-    getPortStatus: function (portToCheck) {
+    getPortStatus: function () {
         if (!port) {
             return 'no port defined'
         } else {
@@ -34,27 +34,54 @@ var Timing = {
     },
 
     openPort: function (portToUse) {
-        console.log('Im listening to port: ', portToUse);
+        console.log('Attempting to listen on port: ', portToUse);
         
-        port = new serialport(portToUse, {
-            baudRate: 9600,
-            stopBits: 1,
-            parity: 'none',
-            dataBits: 8,
-            flowControl: false
-          })
-        
-        const parser = port.pipe(new Readline({ delimiter: '\r\n' }));
-        parser.on('data', function(data) {
+            port = new serialport(portToUse, {
+                baudRate: 9600,
+                stopBits: 1,
+                parity: 'none',
+                dataBits: 8,
+                flowControl: false
+              }, function(error) {
+                console.log(error);
+                port = null;
+              })
 
-            Timing.messageToObject(data);
-        })
+            if (port) {
+                const parser = port.pipe(new Readline({ delimiter: '\r\n' }));
+                parser.on('data', function(data) {
+                    Timing.messageToObject(data);
+                })
+            }  
     },
 
     closePort: function () {
         
-        port.close();
+        console.log('Attempting to close the port');
+        if (port) {
+            port.close();
+            console.log('Port closed');
+        } else {
+            console.log('Port not available');
+        }
         
+        
+    },
+
+    async ListPorts () {
+        // list serial ports:
+        
+        const allPorts = await serialport.list().then((ports) => {
+
+            tempPorts = [];
+
+            ports.forEach(function(port) {
+               tempPorts.push(port.path);
+            });
+            return tempPorts;
+        })
+        
+        return allPorts;
     }
 }
 

@@ -1,5 +1,6 @@
 var RaceModel = require('../models/raceModel');
 var Timing = require('./timing');
+var serialport = require('serialport');
 
 var Race = {
 
@@ -22,37 +23,6 @@ var Race = {
           });
 
         return raceRecords;
-    },
-
-    async ListPorts () {
-        // list serial ports:
-        
-        const allPorts = await serialport.list().then((ports) => {
-
-            tempPorts = [];
-
-            ports.forEach(function(port) {
-               tempPorts.push(port.path);
-            });
-            return tempPorts;
-        })
-        
-        return allPorts;
-    },
-
-    async StartListening (portToUse) {
-      
-        Timing.openPort(portToUse)
-    },
-
-    async StopListening () {
-        
-        console.log('Im closing port: ', Timing.getPortStatus());
-        
-        Timing.closePort();
-
-        console.log('port closed');
-       
     }
 
 }

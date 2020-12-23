@@ -1,4 +1,5 @@
 var Race = require('../services/race');
+var Timing = require('../services/timing');
 
 var raceController = {
     New: async (req, res) => {
@@ -18,25 +19,21 @@ var raceController = {
     },
 
     ListPorts: async (req, res) => {
-        const ports = await Race.ListPorts()
+        const ports = await Timing.ListPorts()
         if (ports) {
-            res.json({commPorts: ports});
+            res.json({comPorts: ports});
         }
     },
 
     StartListening: async (req, res) => {
         portToUse = req.params.portId;
-        console.log(portToUse);
-        Race.StartListening(portToUse);
-
-        res.json('Listening on ' + portToUse );
+        Timing.openPort(portToUse);
+        res.json(Timing.getPortStatus());
     },
 
     StopListening: async (req, res) => {
-
-        Race.StopListening();
-
-        res.json('Listening stopped on ' + portToUse );
+        Timing.closePort();
+        res.json('Listening stopped');
     }
 }
 
