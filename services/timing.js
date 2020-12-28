@@ -1,6 +1,8 @@
 let serialport = require('serialport');
 const Readline = require('@serialport/parser-readline');
 
+const localRaceStorage = require('node-persist');
+
  var port = '';
  var foundTransponderPort = '';
 
@@ -17,7 +19,11 @@ const Readline = require('@serialport/parser-readline');
                 transponderId: messageTabs[3],
                 timeSeconds: messageTabs[4]
             }
+            // add in saving to localstorage here.
             console.log(messageObj);
+            if (localRaceStorage.raceMessages) {
+                localRaceStorage.raceMessages.push(messageObj.transponderId);
+            }
         } else if (messageTabs[0].substring(1,3) === '#') {
             console.log('keepalive', messageTabs);
         }
@@ -33,10 +39,10 @@ const Readline = require('@serialport/parser-readline');
         }
     }
 
-    function openPort (portToUse) {
-        console.log('Attempting to listen on port: ', portToUse);
+    function openPort (foundTransponderPort) {
+        console.log('Attempting to listen on port: ', foundTransponderPort);
         
-            port = new serialport(portToUse, {
+            port = new serialport(foundTransponderPort, {
                 baudRate: 9600,
                 stopBits: 1,
                 parity: 'none',
@@ -99,7 +105,7 @@ const Readline = require('@serialport/parser-readline');
                 const parser = testPort.pipe(new Readline({ delimiter: '\r\n' }));
                 parser.on('data', function(data) {
                     const messageTabs = data.split('\t');
-                    console.log(messageTabs[0].substring(1,3));
+                    console.log(messageTabs);
                     if (messageTabs[0].substring(1,3) === '$') {
                         console.log('This is your transponder port: ', testPort.path)
                         testPort.close();
