@@ -27,6 +27,7 @@ var indexRouter = require('./routes/index');
 var driversRouter = require('./routes/drivers');
 var eventsRouter = require('./routes/events');
 var racesRouter = require('./routes/races');
+var liveRaceRouter = require('./routes/liveRace');
 
 var app = express();
 
@@ -44,6 +45,7 @@ app.use('/', indexRouter);
 app.use('/drivers', driversRouter);
 app.use('/events', eventsRouter);
 app.use('/races', racesRouter);
+app.use('/liverace', liveRaceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

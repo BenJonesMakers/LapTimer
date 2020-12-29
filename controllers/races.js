@@ -1,5 +1,4 @@
-var Race = require('../services/race');
-var Timing = require('../services/timingSystem');
+var Race = require('../services/races');
 
 var raceController = {
     New: async (req, res) => {
@@ -16,14 +15,8 @@ var raceController = {
         
         res.json(races);
         
-    },
-
-    StartRace: async (req, res) => {
-        let raceId = '47384274272847';
-        let raceLength = 3;
-        Race.startRace(raceId, raceLength);
-        res.json('Starting Race');
     }
+
 }
 
 module.exports = raceController;

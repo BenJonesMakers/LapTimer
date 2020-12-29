@@ -1,5 +1,4 @@
 var RaceModel = require('../models/raceModel');
-const LiveRace = require('./liveRace');
 
     async function creation(raceDetails) {
         
@@ -14,19 +13,6 @@ const LiveRace = require('./liveRace');
     
     }
 
-    async function startRace(raceID, raceLength) {
-
-        //create instance of liveRace class.
-        const liveRace = new LiveRace(raceID, raceLength) 
-        
-        //start the race using liveRaceInstance.start()
-        liveRace.startRace(); 
-        // DO THE REST FROM THE CLIENT
-        // Client polls an API route (not liveclientInstance) 
-        //that has to read back from the localstorage and report back.
-    
-    }
-
     async function getAll() {
         const raceRecords = await RaceModel.find(function(err, races) {
             if (err) { throw err; }
@@ -37,5 +23,4 @@ const LiveRace = require('./liveRace');
     }
 
 module.exports.creation = creation;
-module.exports.startRace = startRace;
 module.exports.getAll = getAll;

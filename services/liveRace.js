@@ -6,7 +6,8 @@ module.exports = class LiveRace {
         this.raceID = raceID;
         this.raceLength = raceLength;
         this.raceRunning = false;
-        
+        this.startTime = null;
+        this.finishTime = null;
     }
 
     async startRace() {
@@ -20,14 +21,22 @@ module.exports = class LiveRace {
  
         console.log(await localRaceStorage.getItem('raceMessages'));
 
-        //create an instance of timing system - pass port number
+        // create an instance of timing system - pass port number
         const timingSystem = new TimingSystem('COM4');
 
-        //use open port method to listen for data event
+        // use open port method to listen for data event
         timingSystem.openPort();
 
+        // record start and end times
+        this.startTime = new Date();
+        this.finshTime = new Date();
+        this.finshTime.setMinutes(this.finshTime.getMinutes() + this.raceLength);
+        console.log('Start ', this.startTime);
+        console.log('Finish ', this.finshTime);
+
+        // close the port after race length
+        setTimeout(() => timingSystem.closePort(), (this.raceLength * 60) * 1000);
     }
-    
 
 
-}
+} // end of class
