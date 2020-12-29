@@ -27,13 +27,9 @@ var raceCalc = {
                 prevLap = startRaceTime;
                 laps.push(0);
             } else {
-                // console.log('racetimesecs', raceMessage.timeSeconds);
                 currentLap = parseFloat(raceMessage.timeSeconds) - prevLap;
                 laps.push(Math.round((currentLap + Number.EPSILON) * 1000) / 1000 );
-                // console.log('current', currentLap);
                 prevLap = prevLap + currentLap;
-                //console.log('prev', prevLap);
-                
             }
         });
         console.log(laps);
