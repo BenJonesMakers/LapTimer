@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 require('dotenv').config();
 
-//connect DB
+// connect DB
 try {
   const mongoose = require('mongoose');
   mongoose.connect(process.env.DB_CONNECTION, 

@@ -1,37 +1,15 @@
-let serialport = require('serialport');
+const serialport = require('serialport');
 const Readline = require('@serialport/parser-readline');
-
 const localRaceStorage = require('node-persist');
+const { model } = require('../models/raceModel');
 
- var port = '';
- var foundTransponderPort = '';
-
-    function messageToObject  (message) {
-
-        const messageTabs = message.split('\t');
-        let messageObj = {}
-        if (messageTabs[0].substring(1,3) === '@') {
-            messageObj = {
-                sor: messageTabs[0],
-                command: messageTabs[0].substring(1,3),
-                decoderId: messageTabs[1],
-                recordSeq: messageTabs[2],
-                transponderId: messageTabs[3],
-                timeSeconds: messageTabs[4]
-            }
-            // add in saving to localstorage here.
-            console.log(messageObj);
-            if (localRaceStorage.raceMessages) {
-                localRaceStorage.raceMessages.push(messageObj.transponderId);
-            }
-        } else if (messageTabs[0].substring(1,3) === '#') {
-            console.log('keepalive', messageTabs);
-        }
-
-        return messageObj;
+module.exports = class TimimgSystem {
+    constructor(foundTransponderPort) {
+        this.foundTransponderPort = foundTransponderPort;
+        this.port = '';
     }
 
-    function getPortStatus () {
+    getPortStatus () {
         if (!port) {
             return 'no port defined'
         } else {
@@ -39,10 +17,10 @@ const localRaceStorage = require('node-persist');
         }
     }
 
-    function openPort (foundTransponderPort) {
-        console.log('Attempting to listen on port: ', foundTransponderPort);
+    openPort () {
+        console.log('Attempting to listen on port: ', this.foundTransponderPort);
         
-            port = new serialport(foundTransponderPort, {
+            this.port = new serialport(this.foundTransponderPort, {
                 baudRate: 9600,
                 stopBits: 1,
                 parity: 'none',
@@ -52,27 +30,56 @@ const localRaceStorage = require('node-persist');
                 console.log(error);
               })
 
-            if (port) {
-                const parser = port.pipe(new Readline({ delimiter: '\r\n' }));
+            if (this.port) {
+                console.log('port open waiting for data');
+                const parser = this.port.pipe(new Readline({ delimiter: '\r\n' }));
                 parser.on('data', function(data) {
                     messageToObject(data);
                 })
             }  
     }
 
-    function closePort () {
+    closePort () {
         
         console.log('Attempting to close the port');
-        console.log(port.path);
-        if (port) {
-            port.close();
+        console.log(this.port.path);
+        if (this.port) {
+            this.port.close();
             console.log('Port closed');
         } else {
             console.log('Port not available');
         }
-        
-        
     }
+
+} // end of class
+
+async function messageToObject (message) {
+
+    const messageTabs = message.split('\t');
+    let messageObj = {}
+    if (messageTabs[0].substring(1,3) === '@') {
+        messageObj = {
+            sor: messageTabs[0],
+            command: messageTabs[0].substring(1,3),
+            decoderId: messageTabs[1],
+            recordSeq: messageTabs[2],
+            transponderId: messageTabs[3],
+            timeSeconds: messageTabs[4]
+        }
+        // add in saving to localstorage here.
+        console.log(messageObj);
+        //if (localRaceStorage.raceMessages) {
+            let tempArray = await localRaceStorage.getItem('raceMessages');
+            tempArray.push(messageObj);
+            await localRaceStorage.setItem('raceMessages', tempArray);
+        //}
+    } else if (messageTabs[0].substring(1,3) === '#') {
+        console.log('keepalive', messageTabs);
+    }
+
+    return messageObj;
+}
+
 
     async function ListPorts () {
         // list serial ports:
@@ -141,10 +148,3 @@ const localRaceStorage = require('node-persist');
         
         
     }
-
-
-module.exports.getPortStatus =  getPortStatus;
-module.exports.openPort =  openPort;
-module.exports.closePort =  closePort;
-module.exports.ListPorts =  ListPorts;
-module.exports.askPort =  askPort;

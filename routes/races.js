@@ -4,9 +4,6 @@ var raceController = require('../controllers/races')
 
 router.get('/', raceController.Index)
 router.post('/new', raceController.New)
-
-router.get('/listports', raceController.ListPorts)
-router.put('/startlistening/:portId', raceController.StartListening)
-router.put('/stoplistening', raceController.StopListening)
+router.post('/startrace', raceController.StartRace)
 
 module.exports = router;
