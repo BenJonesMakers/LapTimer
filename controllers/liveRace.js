@@ -16,8 +16,8 @@ var liveRaceController = {
     },
 
     GetPositions: async (req, res) => {
-        RaceCalc.getPositions();
-        res.json('Console Updated');
+        var laps = await RaceCalc.getPositions();
+        res.json(laps);
     }
 
 }
