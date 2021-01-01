@@ -1,5 +1,6 @@
 var LiveRace = require('../services/liveRace');
 var RaceCalc = require('../services/raceCalc');
+var TestData = require('../services/testData');
 
 var liveRaceController = {
 
@@ -18,6 +19,11 @@ var liveRaceController = {
     GetPositions: async (req, res) => {
         var laps = await RaceCalc.getPositions();
         res.json(laps);
+    },
+
+    TestData: async (req, res) => {
+        TestData.storeTestData();
+        res.json('Added Local Test Data');
     }
 
 }

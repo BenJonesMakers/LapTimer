@@ -5,7 +5,7 @@ module.exports = class LiveRace {
     constructor(raceID, raceLength) {
         this.raceID = raceID;
         this.raceLength = raceLength;
-        this.raceRunning = false;
+        this.raceRunning = true;
         this.startTime = null;
         this.finishTime = null;
     }

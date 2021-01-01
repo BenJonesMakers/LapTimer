@@ -4,41 +4,54 @@ var raceCalc = {
     getPositions: async () => {
 
         const raceDetails = {
+            uniqueTransponders: null,
             laps: [],
             startRaceTime: 0
         };
         await localRaceStorage.init();
 
         let raceMessageArray = await localRaceStorage.getItem('raceMessages');
-        let bensLaps = raceMessageArray.filter((raceMessage) => {
-            return raceMessage.transponderId === '1006319';
-        });
-        console.log('total laps', bensLaps.length - 1);
+        raceDetails.uniqueTransponders = [...new Set(raceMessageArray.map(item => item.transponderId))];
 
-        // get total race time
-        let totalRaceTime = 0;
-        // var laps = [];
-        var prevLap = 0;
-        var currentLap = 0;
+        raceDetails.uniqueTransponders.forEach(transponder => {
 
-        bensLaps.forEach(raceMessage => {
+            let tempLapsArray = raceMessageArray.filter((raceMessage) => {
+                return raceMessage.transponderId === transponder;
+            });
+
+            console.log('total laps', tempLapsArray.length - 1);
             
-            if (raceDetails.startRaceTime === 0) {
-                console.log('first entry sets start time');
-                raceDetails.startRaceTime = parseFloat(raceMessage.timeSeconds);
-                prevLap = raceDetails.startRaceTime;
-                raceDetails.laps.push(0);
-            } else {
-                currentLap = parseFloat(raceMessage.timeSeconds) - prevLap;
-                raceDetails.laps.push(Math.round((currentLap + Number.EPSILON) * 1000) / 1000 );
-                prevLap = prevLap + currentLap;
-            }
+            // raceDetails.startRaceTime = 0;
+            let totalRaceTime = 0;
+            var prevLap = 0;
+            var currentLap = 0;
+
+            tempLapsArray.forEach((raceMessage, index) => {
+                
+                if (raceDetails.startRaceTime === 0) {
+                    console.log('first entry sets start time');
+                    raceDetails.startRaceTime = parseFloat(raceMessage.timeSeconds);
+                    prevLap = raceDetails.startRaceTime;
+                    driverLap = {
+                        transponderId: raceMessage.transponderId,
+                        lapNo: index,
+                        laptime: 0 
+                    }
+                    raceDetails.laps.push(driverLap);
+                } else {
+                    driverLap = {
+                        transponderId: raceMessage.transponderId,
+                        lapNo: index,
+                        laptime: Math.round((currentLap + Number.EPSILON) * 1000) / 1000 
+                    }
+                    currentLap = parseFloat(raceMessage.timeSeconds) - prevLap;
+                    raceDetails.laps.push(driverLap);
+                    prevLap = prevLap + currentLap;
+                }
+            });
+
         });
 
-        // raceDetails.driverLaps = laps;
-        // raceDetails.setItem('startTime', startRaceTime);
-        console.log('total time: ', Math.round((totalRaceTime + Number.EPSILON) * 1000) / 1000 );
-        
         return raceDetails;
     }
 }
