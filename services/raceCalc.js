@@ -19,15 +19,11 @@ var raceCalc = {
                 return raceMessage.transponderId === transponder;
             });
 
-            console.log('total laps', tempLapsArray.length - 1);
-            
-            // raceDetails.startRaceTime = 0;
-            let totalRaceTime = 0;
             var prevLap = 0;
             var currentLap = 0;
 
             tempLapsArray.forEach((raceMessage, index) => {
-                
+
                 if (raceDetails.startRaceTime === 0) {
                     console.log('first entry sets start time');
                     raceDetails.startRaceTime = parseFloat(raceMessage.timeSeconds);
@@ -35,14 +31,14 @@ var raceCalc = {
                     driverLap = {
                         transponderId: raceMessage.transponderId,
                         lapNo: index,
-                        laptime: 0 
+                        laptime: 0
                     }
                     raceDetails.laps.push(driverLap);
                 } else {
                     driverLap = {
                         transponderId: raceMessage.transponderId,
                         lapNo: index,
-                        laptime: Math.round((currentLap + Number.EPSILON) * 1000) / 1000 
+                        laptime: Math.round((currentLap + Number.EPSILON) * 1000) / 1000
                     }
                     currentLap = parseFloat(raceMessage.timeSeconds) - prevLap;
                     raceDetails.laps.push(driverLap);
