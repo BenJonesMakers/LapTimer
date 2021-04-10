@@ -1,10 +1,8 @@
-const localRaceStorage = require('node-persist');
-
 var raceCalcTest = {
-    getPositions: async () => {
+    getPositions: async (raceMessageArray) => {
 
         const raceDetails = {
-            uniqueTransponders: null,
+            uniqueTransponders: [],
             raceData: [],
             startRaceTime: 0
         };
@@ -17,10 +15,9 @@ var raceCalcTest = {
             return totalLapTimeByTransponder.toFixed(3);
         }
 
-        await localRaceStorage.init();
-
-        let raceMessageArray = await localRaceStorage.getItem('raceMessages');
-        raceDetails.uniqueTransponders = [...new Set(raceMessageArray.map(item => item.transponderId))];
+        if (raceMessageArray.length) {
+            raceDetails.uniqueTransponders = [...new Set(raceMessageArray.map(item => item.transponderId))];
+        }
 
         raceDetails.uniqueTransponders.forEach(transponder => {
 
@@ -43,7 +40,7 @@ var raceCalcTest = {
                     driverLap = {
                         transponderId: raceMessage.transponderId,
                         lapNo: index,
-                        laptime: 0
+                        laptime: raceDetails.startRaceTime
                     }
                     lapsPerTransponder.push(driverLap);
                 } else {
@@ -67,6 +64,8 @@ var raceCalcTest = {
             raceDetails.raceData.push(driverEntry);
 
         });
+
+        //raceDetails.raceData.sort((a, b) => b.laps - a.laps);
 
         return raceDetails;
     }

@@ -2,6 +2,8 @@ var LiveRace = require('../services/liveRace');
 var RaceCalc = require('../services/raceCalc');
 var RaceCalcTest = require('../services/raceCalcTest');
 var TestData = require('../services/testData');
+var raceDataGlobal = [];
+const fixedTransponders = ['1006319', '1003456', '1003666']
 
 var liveRaceController = {
 
@@ -23,13 +25,23 @@ var liveRaceController = {
     },
 
     GetTestRaceData: async (req, res) => {
-        var laps = await RaceCalcTest.getPositions();
-        res.json(laps);
+        var raceData = await RaceCalcTest.getPositions(raceDataGlobal);
+        res.json(raceData);
     },
 
-    TestData: async (req, res) => {
-        TestData.storeTestData();
-        res.json('Added Local Test Data');
+    GenerateTestLap: async (req, res) => {
+
+        let lastLapTime = 0.000;
+        const randomTransponder = fixedTransponders[Math.floor(Math.random() * fixedTransponders.length)];
+        const thisTransponderTimes = raceDataGlobal.filter(transponder =>
+            transponder.transponderId === randomTransponder);
+
+        if (thisTransponderTimes.length) {
+            lastLapTime = thisTransponderTimes[thisTransponderTimes.length - 1].timeSeconds
+        }
+        const result = await TestData.saveFakeLap(randomTransponder, lastLapTime);
+        raceDataGlobal.push(result);
+        res.json(result);
     }
 
 }
