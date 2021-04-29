@@ -4,7 +4,11 @@ var raceCalcTest = {
         const raceDetails = {
             uniqueTransponders: [],
             raceData: [],
-            startRaceTime: 0
+            startRaceTime: 0,
+            fastestLap: {
+                transponder: '',
+                lapTime: 20
+            }
         };
 
         const totalLapTime = (filteredLaps) => {
@@ -52,6 +56,11 @@ var raceCalcTest = {
                     currentLap = parseFloat(raceMessage.timeSeconds) - prevLap;
                     lapsPerTransponder.push(driverLap);
                     prevLap = prevLap + currentLap;
+
+                    if (currentLap <= raceDetails.fastestLap.lapTime) {
+                        raceDetails.fastestLap.lapTime = currentLap;
+                        raceDetails.fastestLap.transponder = raceMessage.transponderId;
+                    }
                 }
             });
 
