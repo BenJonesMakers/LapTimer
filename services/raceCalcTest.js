@@ -74,7 +74,7 @@ var raceCalcTest = {
 
         });
 
-        //raceDetails.raceData.sort((a, b) => b.laps - a.laps);
+        raceDetails.raceData.sort((a, b) => b.totalLaps - a.totalLaps);
 
         return raceDetails;
     }
