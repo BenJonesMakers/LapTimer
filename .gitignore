@@ -3,4 +3,6 @@ build
 npm-debug.log
 .env
 .DS_Store
-.node-persist/
+package-lock.json
+db/races.db
+node_modules/.package-lock.json
