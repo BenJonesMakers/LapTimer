@@ -1,3 +1,5 @@
+const sqlite3 = require('sqlite3').verbose();
+
 var raceCalcTest = {
     getPositions: async (raceMessageArray) => {
 
@@ -77,6 +79,28 @@ var raceCalcTest = {
         raceDetails.raceData.sort((a, b) => b.totalLaps - a.totalLaps);
 
         return raceDetails;
+    },
+
+    getRaceDataFromDB: (raceID) => {
+        return new Promise((resolve, reject) => {
+            let db = new sqlite3.Database('./db/races.db');
+            let sql = `SELECT * FROM session_messages WHERE raceid = '${raceID}'`;
+            const sessionData = [];
+
+            db.all(sql, [], (err, rows) => {
+                if (err) {
+                    return console.error(err.message);
+                }
+                rows.forEach((row) => {
+                    sessionData.push(JSON.parse(row.message));
+                });
+                resolve(sessionData);
+            });
+
+            db.close();
+
+        })
+
     }
 }
 

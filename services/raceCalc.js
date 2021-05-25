@@ -1,5 +1,3 @@
-const localRaceStorage = require('node-persist');
-
 var raceCalc = {
     getPositions: async () => {
 

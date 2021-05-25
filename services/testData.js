@@ -2,7 +2,7 @@ const generateRandomNumber = require('./helpers/utilities');
 
 function saveFakeLap(transponder, lastLapTime = 0.000) {
 
-    let newLapTime = generateRandomNumber(8.000, 10.000);
+    let newLapTime = generateRandomNumber(7.000, 11.000);
     let updatedLapTime = lastLapTime + newLapTime;
 
     let messageObj = {

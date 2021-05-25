@@ -5,23 +5,24 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 require('dotenv').config();
 
-// connect DB
-try {
-  const mongoose = require('mongoose');
-  mongoose.connect(process.env.DB_CONNECTION, 
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true 
-    });
 
-  const db = mongoose.connection;
-  db.on('error', console.error.bind(console, 'connection error:'));
-  db.once('open', function() {
-    console.log('DB connected');
-  });
-} catch (error) {
-  console.log(error);
-}
+// // connect Mongoose Cloud DB
+// try {
+//   const mongoose = require('mongoose');
+//   mongoose.connect(process.env.DB_CONNECTION,
+//     {
+//       useNewUrlParser: true,
+//       useUnifiedTopology: true
+//     });
+
+//   const db = mongoose.connection;
+//   db.on('error', console.error.bind(console, 'connection error:'));
+//   db.once('open', function() {
+//     console.log('DB connected');
+//   });
+// } catch (error) {
+//   console.log(error);
+// }
 
 var indexRouter = require('./routes/index');
 var driversRouter = require('./routes/drivers');
@@ -48,12 +49,12 @@ app.use('/races', racesRouter);
 app.use('/liverace', liveRaceRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
