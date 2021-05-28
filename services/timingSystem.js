@@ -1,22 +1,6 @@
 const serialport = require('serialport');
 const Readline = require('@serialport/parser-readline');
-const sqlite3 = require('sqlite3').verbose();
-const { model } = require('../models/raceModel');
-let db = new sqlite3.Database('./db/races.db', (err) => {
-    if (err) {
-        console.error(err.message);
-    } else {
-        console.log('Connected to the Races database.');
-
-        if (!db.run("SELECT name FROM sqlite_master WHERE type='table' AND name='session_messages';")) {
-            db.run('CREATE TABLE session_messages(raceid text, message text)');
-            console.log('session_messages table created.');
-        } else {
-            console.log('session_messages table already exists.');
-        }
-    }
-});
-
+const databaseActions = require('./helpers/databaseActions');
 
 module.exports = class TimimgSystem {
     constructor(foundTransponderPort) {
@@ -49,7 +33,7 @@ module.exports = class TimimgSystem {
             console.log('port open waiting for data');
             const parser = this.port.pipe(new Readline({ delimiter: '\r\n' }));
             parser.on('data', function (data) {
-                messageToObject(data, raceID);
+                databaseActions.messageToObject(data, raceID);
             })
         }
     }
@@ -67,29 +51,6 @@ module.exports = class TimimgSystem {
     }
 
 } // end of class
-
-async function messageToObject(message, raceID) {
-
-    const messageTabs = message.split('\t');
-    let messageObj = {}
-    if (messageTabs[0].substring(1, 3) === '@') {
-        messageObj = {
-            sor: messageTabs[0],
-            command: messageTabs[0].substring(1, 3),
-            decoderId: messageTabs[1],
-            recordSeq: messageTabs[2],
-            transponderId: messageTabs[3],
-            timeSeconds: messageTabs[4]
-        }
-
-        writeMessageObjectToDB(messageObj, RaceID)
-
-    } else if (messageTabs[0].substring(1, 3) === '#') {
-        console.log('keepalive', messageTabs);
-    }
-
-    return messageObj;
-}
 
 
 async function ListPorts() {
@@ -155,18 +116,6 @@ function askPort(portToAsk) {
             }
         });
 
-    }
-
-    function writeMessageObjectToDB(messageObj, raceID) {
-        const messageAsAString = JSON.stringify(messageObj);
-        db.run(`INSERT INTO races(session_messages) VALUES(${raceID},${messageAsAString})`, ['C'], function (err) {
-            if (err) {
-                return console.log(err.message);
-            }
-
-        });
-
-        // db.close();
     }
 
 }

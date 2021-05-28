@@ -1,40 +1,33 @@
 var LiveRace = require('../services/liveRace');
 var RaceCalc = require('../services/raceCalc');
-var RaceCalcTest = require('../services/raceCalcTest');
+var RaceCalcTest = require('../services/raceCalc');
 var TestData = require('../services/testData');
 var raceDataGlobal = [];
+var currentRaceId = '';
 const fixedTransponders = ['1006319', '1003456', '1003666'];
-const { v4: uuidv4 } = require('uuid');
-const sqlite3 = require('sqlite3').verbose();
-let db = new sqlite3.Database('./db/races.db', (err) => {
-    if (err) {
-        console.error(err.message);
-    } else {
-        console.log('Connected to the Races database (fakelap).');
-    }
-});
+const databaseActions = require('../services/helpers/databaseActions');
 
 var liveRaceController = {
 
     StartRace: async (req, res) => {
-        let raceId = uuidv4();
-        let raceLength = 1;
         //create instance of liveRace class.
-        const liveRace = new LiveRace(raceId, raceLength)
+        const liveRace = new LiveRace(3);
 
         //start the race using liveRaceInstance.start()
         liveRace.startRace();
 
-        res.json('Starting Race ' + raceId);
+        currentRaceId = liveRace.raceID;
+
+        res.json('Starting Race ' + liveRace.raceID);
     },
 
-    GetPositions: async (req, res) => {
-        var laps = await RaceCalc.getPositions();
-        res.json(laps);
-    },
+    // GetPositions: async (req, res) => {
+    //     var laps = await RaceCalc.getPositions();
+    //     res.json(laps);
+    // },
 
     GetTestRaceData: async (req, res) => {
-        var raceDataDB = await RaceCalcTest.getRaceDataFromDB('test');
+        var raceDataDB = await RaceCalcTest.getRaceDataFromDB(currentRaceId);
         var raceData = await RaceCalcTest.getPositions(raceDataDB);
         // var raceData = await RaceCalcTest.getPositions(raceDataGlobal);
         res.json(raceData);
@@ -52,20 +45,10 @@ var liveRaceController = {
         }
         const result = await TestData.saveFakeLap(randomTransponder, lastLapTime);
         raceDataGlobal.push(result);
-        //test
+
         const messageAsAString = JSON.stringify(result);
-        const messageParams = {
-            $raceid: this.raceId || 'test',
-            $message: messageAsAString
-        }
-        const sql = 'INSERT INTO session_messages(raceid, message) VALUES($raceid ,$message)';
-        db.run(sql, messageParams, ['C'], function (err) {
-            if (err) {
-                return console.log(err.message);
-            }
-            // get the last insert id
-            console.log(`A row has been inserted with rowid ${this.lastID}`);
-        });
+
+        databaseActions.insertRaceMessage(currentRaceId, messageAsAString);
 
         res.json(result);
     }
