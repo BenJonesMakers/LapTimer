@@ -163,12 +163,10 @@ function askPort(portToAsk) {
             if (err) {
                 return console.log(err.message);
             }
-            // get the last insert id
-            console.log(`A row has been inserted with rowid ${this.lastID}`);
+
         });
 
-        // close the database connection
-        db.close();
+        // db.close();
     }
 
 }
