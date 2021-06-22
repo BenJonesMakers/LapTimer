@@ -2,17 +2,17 @@ const serialport = require('serialport');
 const Readline = require('@serialport/parser-readline');
 const databaseActions = require('./helpers/databaseActions');
 
-module.exports = class TimimgSystem {
-    constructor(foundTransponderPort) {
-        this.foundTransponderPort = foundTransponderPort;
+class PrivateTimimgSystemSingleton {
+    constructor() {
+        this.foundTransponderPort = 'COM4';
         this.port = '';
     }
 
     getPortStatus() {
-        if (!port) {
-            return 'no port defined'
+        if (this.port = '') {
+            return false;
         } else {
-            return port.path;
+            return this.port.path;
         }
     }
 
@@ -42,7 +42,7 @@ module.exports = class TimimgSystem {
 
         console.log('Attempting to close the port');
         console.log(this.port.path);
-        if (this.port) {
+        if (this.getPortStatus()) {
             this.port.close();
             console.log('Port closed');
         } else {
@@ -119,3 +119,16 @@ function askPort(portToAsk) {
     }
 
 }
+
+class TimingSystemSingleton {
+    constructor() {
+        throw new Error('Use Singleton.getInstance()');
+    }
+    static getInstance() {
+        if (!TimingSystemSingleton.instance) {
+            TimingSystemSingleton.instance = new PrivateTimimgSystemSingleton();
+        }
+        return TimingSystemSingleton.instance;
+    }
+}
+module.exports = TimingSystemSingleton;

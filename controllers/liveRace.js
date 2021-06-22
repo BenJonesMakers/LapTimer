@@ -1,35 +1,33 @@
-var LiveRace = require('../services/liveRace');
 var RaceCalc = require('../services/raceCalc');
-var RaceCalcTest = require('../services/raceCalc');
 var TestData = require('../services/testData');
 var raceDataGlobal = [];
 var currentRaceId = '';
 const fixedTransponders = ['1006319', '1003456', '1003666'];
 const databaseActions = require('../services/helpers/databaseActions');
+const RaceSingleton = require('../services/RaceSingleton');
 
-var liveRaceController = {
+const liveRaceController = {
 
     StartRace: async (req, res) => {
-        //create instance of liveRace class.
-        const liveRace = new LiveRace(3);
 
-        //start the race using liveRaceInstance.start()
-        liveRace.startRace();
+        const race = RaceSingleton.getInstance();
+        race.startRace();
 
-        currentRaceId = liveRace.raceID;
+        currentRaceId = race.raceID;
 
-        res.json('Starting Race ' + liveRace.raceID);
+        res.json('Starting Race ' + race.raceID);
+    },
+    EndRace: async (req, res) => {
+
+        const race = RaceSingleton.getInstance();
+        race.endRace();
+
+        res.json('Ending Race ' + race.raceID);
     },
 
-    // GetPositions: async (req, res) => {
-    //     var laps = await RaceCalc.getPositions();
-    //     res.json(laps);
-    // },
-
     GetTestRaceData: async (req, res) => {
-        var raceDataDB = await RaceCalcTest.getRaceDataFromDB(currentRaceId);
-        var raceData = await RaceCalcTest.getPositions(raceDataDB);
-        // var raceData = await RaceCalcTest.getPositions(raceDataGlobal);
+        var raceDataDB = await RaceCalc.getRaceDataFromDB(currentRaceId);
+        var raceData = await RaceCalc.getPositions(raceDataDB);
         res.json(raceData);
     },
 
