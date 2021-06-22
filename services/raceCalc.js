@@ -1,9 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
 
 var raceCalc = {
-    getPositions: async (raceMessageArray) => {
+    getPositions: async (raceMessageArray, raceID) => {
 
         const raceDetails = {
+            raceID: raceID,
             uniqueTransponders: [],
             raceData: [],
             startRaceTime: 0,
@@ -50,7 +51,6 @@ var raceCalc = {
                     }
                     lapsPerTransponder.push(driverLap);
                 } else {
-                    console.log('not changing start time for ', raceMessage.transponderId);
                     driverLap = {
                         transponderId: raceMessage.transponderId,
                         lapNo: index,

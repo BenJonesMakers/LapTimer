@@ -4,17 +4,19 @@ const { v4: uuidv4 } = require('uuid');
 
 class PrivateRaceSingleton {
   constructor(raceLength) {
-    this.raceID = uuidv4();
+    this.raceID = '0000';
     this.raceLength = raceLength;
-    this.raceRunning = true;
+    this.raceRunning = false;
     this.startTime = null;
     this.finishTime = null;
   }
 
   async startRace() {
-    // create an instance of timing system - pass port number
+
+    this.raceID = uuidv4();
     const timingSystem = TimingSystemSingleton.getInstance();
     timingSystem.openPort(this.raceID);
+    this.raceRunning = true;
 
     // record start times - this needs ot move out and be updated after the countdown possibly
     this.startTime = new Date();
@@ -29,6 +31,7 @@ class PrivateRaceSingleton {
   }
 
   async endRace() {
+    this.raceRunning = false;
     const timingSystem = TimingSystemSingleton.getInstance();
     timingSystem.closePort();
   }

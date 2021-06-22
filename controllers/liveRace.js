@@ -27,7 +27,7 @@ const liveRaceController = {
 
     GetTestRaceData: async (req, res) => {
         var raceDataDB = await RaceCalc.getRaceDataFromDB(currentRaceId);
-        var raceData = await RaceCalc.getPositions(raceDataDB);
+        var raceData = await RaceCalc.getPositions(raceDataDB, currentRaceId);
         res.json(raceData);
     },
 
