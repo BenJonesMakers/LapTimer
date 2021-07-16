@@ -10,7 +10,7 @@ var raceCalc = {
             startRaceTime: 0,
             fastestLap: {
                 transponder: '',
-                lapTime: 20
+                lapTime: 9999
             }
         };
 
