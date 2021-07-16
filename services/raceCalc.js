@@ -1,4 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
+const databaseActions = require('./helpers/databaseActions');
 
 var raceCalc = {
     getPositions: async (raceMessageArray, raceID) => {
@@ -7,7 +8,7 @@ var raceCalc = {
             raceID: raceID,
             uniqueTransponders: [],
             raceData: [],
-            startRaceTime: 0,
+            startRaceTime: databaseActions.getRaceStartFromDB(raceID),
             fastestLap: {
                 transponder: '',
                 lapTime: 9999
@@ -39,8 +40,9 @@ var raceCalc = {
 
             tempLapsArray.forEach((raceMessage, index) => {
 
-                if (raceDetails.startRaceTime === 0) {
-                    console.log('first entry sets start time for ', raceMessage.transponderId);
+                if (raceDetails.startRaceTime === undefined) {
+                    console.log('first entry sets start time for ', raceMessage.transponderId, raceDetails.startRaceTime);
+                    databaseActions.updateRaceStartTime(raceID, parseFloat(raceMessage.timeSeconds));
                     raceDetails.startRaceTime = parseFloat(raceMessage.timeSeconds);
                     prevLap = raceDetails.startRaceTime;
 

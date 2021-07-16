@@ -26,8 +26,9 @@ const liveRaceController = {
     },
 
     GetTestRaceData: async (req, res) => {
-        var raceDataDB = await RaceCalc.getRaceDataFromDB(currentRaceId);
-        var raceData = await RaceCalc.getPositions(raceDataDB, currentRaceId);
+        const race = RaceSingleton.getInstance();
+        // var raceDataDB = await RaceCalc.getRaceDataFromDB(currentRaceId);
+        var raceData = await race.getRaceData();
         res.json(raceData);
     },
 
@@ -44,9 +45,11 @@ const liveRaceController = {
         const result = await TestData.saveFakeLap(randomTransponder, lastLapTime);
         raceDataGlobal.push(result);
 
-        const messageAsAString = JSON.stringify(result);
+        // const messageAsAString = JSON.stringify(result);
+        const race = RaceSingleton.getInstance();
+        race.passNewRaceMessage(result);
 
-        databaseActions.insertRaceMessage(currentRaceId, messageAsAString);
+        // databaseActions.insertRaceMessage(currentRaceId, messageAsAString);
 
         res.json(result);
     }

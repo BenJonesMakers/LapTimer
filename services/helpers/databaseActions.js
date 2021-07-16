@@ -59,6 +59,34 @@ var databaseActions = {
         return console.log(err.message);
       }
     });
+  },
+
+  updateRaceStartTime(raceID, raceStartTime) {
+    const messageParams = {
+      $raceid: raceID,
+      $starttime: raceStartTime
+    }
+
+    const sql = 'UPDATE current_race SET first_race_message_time = $starttime WHERE(race_id = $raceid)';
+    db.run(sql, messageParams, ['C'], function (err) {
+      if (err) {
+        return console.log('here', err.message);
+      }
+    });
+  },
+
+  getRaceStartFromDB(raceID) {
+    let db = new sqlite3.Database('./db/races.db');
+    let sql = `SELECT first_race_message_time FROM current_race WHERE race_id = '${raceID}'`;
+    let raceStartTime;
+    db.get(sql, [], (err, row) => {
+      if (err) {
+        return console.error(err.message);
+      }
+
+      raceStartTime = row.first_race_message_time;
+      return raceStartTime;
+    });
   }
 }
 
