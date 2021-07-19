@@ -1,5 +1,5 @@
 const TimingSystemSingleton = require('./TimingSystemSingleton');
-const raceProcessing = require('./helpers/raceProcessing');
+// const raceProcessing = require('./helpers/raceProcessing');
 const { v4: uuidv4 } = require('uuid');
 
 class PrivateRaceSingleton {
@@ -36,11 +36,6 @@ class PrivateRaceSingleton {
     const transponder = message.transponderId.toString();
     const messageTime = parseFloat(message.timeSeconds);
 
-
-    //this enables the timingSystem instance to pass a new message
-    if (this.racers.length < 1) {
-      console.log('First race message')
-    }
     // check if we have an object for this transponder, if we do update if not create one:
     if (this.racers[transponder]) {
       const laptime = messageTime - this.racers[transponder].previousLapStartTime;
@@ -50,17 +45,11 @@ class PrivateRaceSingleton {
       console.log('laptime being logged', laptime);
 
       // first overwrite the previous start time
-      console.log('previousLapStartTime: ', this.racers[transponder].previousLapStartTime);
       this.racers[transponder].previousLapStartTime = messageTime;
-      console.log('new previousLapStartTime: ', this.racers[transponder].previousLapStartTime);
       // second update their new total
-      console.log('previous total: ', this.racers[transponder].totalTime);
       this.racers[transponder].totalTime += laptime;
-      console.log('new total: ', this.racers[transponder].totalTime);
       // third update their total no of laps
-      console.log('previous totalLaps: ', this.racers[transponder].totalLaps);
       this.racers[transponder].totalLaps += 1;
-      console.log('new totalLaps: ', this.racers[transponder].totalLaps);
 
       // update the laps sub array
       this.racers[transponder].laps.push(
@@ -107,6 +96,10 @@ class PrivateRaceSingleton {
     this.finishTime = new Date();
     const timingSystem = TimingSystemSingleton.getInstance();
     timingSystem.closePort();
+    // cleanup
+    this.racers = {};
+    this.uniqueTransponders = [];
+
   }
 }
 class RaceSingleton {
