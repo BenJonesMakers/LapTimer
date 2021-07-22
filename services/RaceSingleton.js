@@ -36,13 +36,14 @@ class PrivateRaceSingleton {
     const messageTime = parseFloat(message.timeSeconds);
 
     // check if we have an object for this transponder, if we do update if not create one:
-    let foundRacer = this.racers.find(racer => racer.transponderId === transponder);
-    let foundIndex = this.racers.indexOf(foundRacer);
+    let foundRacer;
+    if (this.racers.length) {
+      foundRacer = this.racers.find(racer => racer.transponderId === transponder);
+    }
 
     if (foundRacer) {
-
+      let foundIndex = this.racers.indexOf(foundRacer);
       const laptime = messageTime - this.racers[foundIndex].previousLapStartTime;
-
       this.racers[foundIndex].previousLapStartTime = messageTime;
       this.racers[foundIndex].totalTime += laptime;
       this.racers[foundIndex].totalLaps += 1;
@@ -68,9 +69,8 @@ class PrivateRaceSingleton {
         laps: [],
         totalTime: 0
       })
+
     }
-
-
   }
 
   async getRaceData() {
