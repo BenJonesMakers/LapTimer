@@ -1,9 +1,7 @@
-var RaceCalc = require('../services/raceCalc');
 var TestData = require('../services/testData');
 var raceDataGlobal = [];
 var currentRaceId = '';
 const fixedTransponders = ['1006319', '1003456', '1003666'];
-const databaseActions = require('../services/helpers/databaseActions');
 const RaceSingleton = require('../services/RaceSingleton');
 
 const liveRaceController = {
