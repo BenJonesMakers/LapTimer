@@ -18,7 +18,7 @@ class PrivateRaceSingleton {
 
     this.raceID = uuidv4();
     const timingSystem = TimingSystemSingleton.getInstance();
-    timingSystem.openPort(this.raceID);
+    timingSystem.openPort(this);
     this.raceRunning = true;
 
     // record start time of the race (not the first message time)

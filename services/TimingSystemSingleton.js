@@ -1,11 +1,10 @@
 const serialport = require('serialport');
 const Readline = require('@serialport/parser-readline');
-const RaceSingleton = require('./RaceSingleton');
 // const databaseActions = require('./helpers/databaseActions');
 
 class PrivateTimimgSystemSingleton {
     constructor() {
-        this.foundTransponderPort = 'COM4';
+        this.foundTransponderPort = 'COM7';
         this.port = '';
     }
 
@@ -17,7 +16,7 @@ class PrivateTimimgSystemSingleton {
         }
     }
 
-    openPort(raceID) {
+    openPort(raceInstance) {
 
         console.log('Attempting to listen on port: ', this.foundTransponderPort);
 
@@ -36,7 +35,7 @@ class PrivateTimimgSystemSingleton {
             console.log('port open waiting for data');
             const parser = this.port.pipe(new Readline({ delimiter: '\r\n' }));
             parser.on('data', function (data) {
-                messageToObject(data);
+                messageToObject(data, raceInstance);
             })
         }
 
@@ -44,42 +43,37 @@ class PrivateTimimgSystemSingleton {
 
     closePort() {
 
-        console.log('Attempting to close the port');
-        console.log(this.port.path);
-        if (this.getPortStatus()) {
-            this.port.close();
-            console.log('Port closed');
-        } else {
-            console.log('Port not available');
-        }
+        console.log('Attempting to close the port: ', this.port.path);
+        this.port.close();
+        console.log('Port closed');
+
     }
 
-    messageToObject(message) {
 
-        const race = RaceSingleton.getInstance();
-        const messageTabs = message.split('\t');
-        let messageObj = {}
-        if (messageTabs[0].substring(1, 3) === '@') {
-            messageObj = {
-                sor: messageTabs[0],
-                command: messageTabs[0].substring(1, 3),
-                decoderId: messageTabs[1],
-                recordSeq: messageTabs[2],
-                transponderId: messageTabs[3],
-                timeSeconds: messageTabs[4]
-            }
-
-            race.passNewRaceMessage(messageObj);
-
-        } else if (messageTabs[0].substring(1, 3) === '#') {
-            console.log('keepalive', messageTabs);
-        }
-
-        return messageObj;
-    }
 
 } // end of class
 
+async function messageToObject(message, race) {
+
+    const messageTabs = message.split('\t');
+    let messageObj = {}
+    if (messageTabs[0].substring(1, 3) === '@') {
+        messageObj = {
+            sor: messageTabs[0],
+            command: messageTabs[0].substring(1, 3),
+            decoderId: messageTabs[1],
+            recordSeq: messageTabs[2],
+            transponderId: messageTabs[3],
+            timeSeconds: messageTabs[4]
+        }
+        race.passNewRaceMessage(messageObj);
+
+    } else if (messageTabs[0].substring(1, 3) === '#') {
+        console.log('keepalive', messageTabs);
+    }
+
+    return messageObj;
+}
 
 async function ListPorts() {
     // list serial ports:
