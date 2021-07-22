@@ -4,8 +4,7 @@ var liveRaceController = require('../controllers/liveRace')
 
 router.post('/startrace', liveRaceController.StartRace)
 router.post('/endrace', liveRaceController.EndRace)
-// router.get('/', liveRaceController.GetPositions)
-router.get('/testrace', liveRaceController.GetTestRaceData)
+router.get('/racedata', liveRaceController.GetRaceData)
 router.post('/generatetestlap', liveRaceController.GenerateTestLap)
 
 module.exports = router;

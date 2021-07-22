@@ -25,9 +25,8 @@ const liveRaceController = {
         res.json('Ending Race ' + race.raceID);
     },
 
-    GetTestRaceData: async (req, res) => {
+    GetRaceData: async (req, res) => {
         const race = RaceSingleton.getInstance();
-        // var raceDataDB = await RaceCalc.getRaceDataFromDB(currentRaceId);
         var raceData = await race.getRaceData();
         res.json(raceData);
     },
@@ -45,12 +44,8 @@ const liveRaceController = {
         const result = await TestData.saveFakeLap(randomTransponder, lastLapTime);
         raceDataGlobal.push(result);
 
-        // const messageAsAString = JSON.stringify(result);
         const race = RaceSingleton.getInstance();
         race.passNewRaceMessage(result);
-
-        // databaseActions.insertRaceMessage(currentRaceId, messageAsAString);
-
         res.json(result);
     }
 
