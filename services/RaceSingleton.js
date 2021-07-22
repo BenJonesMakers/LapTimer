@@ -10,6 +10,8 @@ class PrivateRaceSingleton {
     this.finishTime = null;
     this.racers = [];
     this.uniqueTransponders = [];
+    this.fastestLap = 999999;
+    this.fatstestLapTransponder = '';
   }
 
   async startRace() {
@@ -57,6 +59,12 @@ class PrivateRaceSingleton {
         }
       );
 
+      // check if this is the new fastest lap
+      if (laptime <= this.fastestLap) {
+        this.fastestLap = laptime;
+        this.fatstestLapTransponder = transponder;
+      }
+
     } else {
 
       this.uniqueTransponders.push(transponder);
@@ -79,8 +87,8 @@ class PrivateRaceSingleton {
       uniqueTransponders: this.uniqueTransponders,
       raceData: this.racers,
       fastestLap: {
-        transponder: '',
-        lapTime: 9999
+        transponder: this.fatstestLapTransponder,
+        lapTime: this.fastestLap
       }
     };
   }
