@@ -1,5 +1,6 @@
 const serialport = require('serialport');
 const Readline = require('@serialport/parser-readline');
+const e = require('express');
 // const databaseActions = require('./helpers/databaseActions');
 
 class PrivateTimimgSystemSingleton {
@@ -42,10 +43,14 @@ class PrivateTimimgSystemSingleton {
     }
 
     closePort() {
+        try {
+            console.log('Attempting to close the port: ', this.port.path);
+            this.port.close();
+            console.log('Port closed');
+        } catch (error) {
+            console.log(error);
+        }
 
-        console.log('Attempting to close the port: ', this.port.path);
-        this.port.close();
-        console.log('Port closed');
 
     }
 
@@ -66,7 +71,11 @@ async function messageToObject(message, race) {
             transponderId: messageTabs[3],
             timeSeconds: messageTabs[4]
         }
-        race.passNewRaceMessage(messageObj);
+        try {
+            race.passNewRaceMessage(messageObj);
+        } catch (error) {
+            console.log(error);
+        }
 
     } else if (messageTabs[0].substring(1, 3) === '#') {
         console.log('keepalive', messageTabs);

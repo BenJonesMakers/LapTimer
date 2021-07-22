@@ -99,7 +99,7 @@ class PrivateRaceSingleton {
     const timingSystem = TimingSystemSingleton.getInstance();
     timingSystem.closePort();
     // cleanup
-    this.racers = {};
+    this.racers = [];
     this.uniqueTransponders = [];
 
   }
