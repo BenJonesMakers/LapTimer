@@ -1,5 +1,4 @@
 const TimingSystemSingleton = require('./TimingSystemSingleton');
-// const raceProcessing = require('./helpers/raceProcessing');
 const { v4: uuidv4 } = require('uuid');
 
 class PrivateRaceSingleton {
@@ -9,7 +8,7 @@ class PrivateRaceSingleton {
     this.raceRunning = false;
     this.startTimeStamp = null;
     this.finishTime = null;
-    this.racers = {};
+    this.racers = [];
     this.uniqueTransponders = [];
   }
 
@@ -37,35 +36,30 @@ class PrivateRaceSingleton {
     const messageTime = parseFloat(message.timeSeconds);
 
     // check if we have an object for this transponder, if we do update if not create one:
-    if (this.racers[transponder]) {
-      const laptime = messageTime - this.racers[transponder].previousLapStartTime;
+    let foundRacer = this.racers.find(racer => racer.transponderId === transponder);
+    let foundIndex = this.racers.indexOf(foundRacer);
 
-      console.log('transponder being logged', transponder);
-      console.log('messageTime being logged', messageTime);
-      console.log('laptime being logged', laptime);
+    if (foundRacer) {
 
-      // first overwrite the previous start time
-      this.racers[transponder].previousLapStartTime = messageTime;
-      // second update their new total
-      this.racers[transponder].totalTime += laptime;
-      // third update their total no of laps
-      this.racers[transponder].totalLaps += 1;
+      const laptime = messageTime - this.racers[foundIndex].previousLapStartTime;
+
+      this.racers[foundIndex].previousLapStartTime = messageTime;
+      this.racers[foundIndex].totalTime += laptime;
+      this.racers[foundIndex].totalLaps += 1;
 
       // update the laps sub array
-      this.racers[transponder].laps.push(
+      this.racers[foundIndex].laps.push(
         {
           transponderId: transponder,
-          lapNo: this.racers[transponder].totalLaps,
+          lapNo: this.racers[foundIndex].totalLaps,
           laptime: laptime
         }
       );
 
-
     } else {
 
-      console.log('transponder being added - lap 0 started', transponder);
       this.uniqueTransponders.push(transponder);
-      this.racers[transponder] = {
+      this.racers.push({
         transponderId: transponder,
         racerName: 'Pip',
         lapZeroStartTime: message.timeSeconds,
@@ -73,7 +67,7 @@ class PrivateRaceSingleton {
         totalLaps: 0,
         laps: [],
         totalTime: 0
-      }
+      })
     }
 
 
