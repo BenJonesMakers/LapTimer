@@ -6,15 +6,14 @@ var driverController = {
 
         let savedDriver = await Driver.Signup(newDriver);
 
-        res.json({driver: savedDriver})
-        
+        res.json({ driver: savedDriver })
+
     },
-    
+
     Index: async (req, res) => {
         let drivers = await Driver.GetAll();
-        
         res.json(drivers);
-        
+
     }
 }
 

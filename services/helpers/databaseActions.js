@@ -8,28 +8,40 @@ let db = new sqlite3.Database('./db/races.db', (err) => {
 });
 
 var databaseActions = {
-  async messageToObject(message, raceID) {
-
-    const messageTabs = message.split('\t');
-    let messageObj = {}
-    if (messageTabs[0].substring(1, 3) === '@') {
-      messageObj = {
-        sor: messageTabs[0],
-        command: messageTabs[0].substring(1, 3),
-        decoderId: messageTabs[1],
-        recordSeq: messageTabs[2],
-        transponderId: messageTabs[3],
-        timeSeconds: messageTabs[4]
+  getDrivers() {
+    let db = new sqlite3.Database('./db/races.db');
+    let sql = `SELECT * FROM drivers`;
+    const drivers = db.all(sql, [], (err, rows) => {
+      if (err) {
+        return console.error(err.message);
       }
+      return rows;
+    });
 
-      writeMessageObjectToDB(messageObj, RaceID)
-
-    } else if (messageTabs[0].substring(1, 3) === '#') {
-      console.log('keepalive', messageTabs);
-    }
-
-    return messageObj;
+    return drivers;
   },
+  // async messageToObject(message, raceID) {
+
+  //   const messageTabs = message.split('\t');
+  //   let messageObj = {}
+  //   if (messageTabs[0].substring(1, 3) === '@') {
+  //     messageObj = {
+  //       sor: messageTabs[0],
+  //       command: messageTabs[0].substring(1, 3),
+  //       decoderId: messageTabs[1],
+  //       recordSeq: messageTabs[2],
+  //       transponderId: messageTabs[3],
+  //       timeSeconds: messageTabs[4]
+  //     }
+
+  //     writeMessageObjectToDB(messageObj, RaceID)
+
+  //   } else if (messageTabs[0].substring(1, 3) === '#') {
+  //     console.log('keepalive', messageTabs);
+  //   }
+
+  //   return messageObj;
+  // },
 
   createNewRace(raceDetails) {
     const { raceID, raceLength, startTime } = raceDetails;

@@ -43,18 +43,13 @@ class PrivateTimimgSystemSingleton {
     }
 
     closePort() {
-        try {
-            console.log('Attempting to close the port: ', this.port.path);
-            this.port.close();
-            console.log('Port closed');
-        } catch (error) {
-            console.log(error);
-        }
 
+        console.log('Attempting to close the port: ', this.port.path);
+        this.port.close(function (err) {
+            console.log('port closed', err);
+        });
 
     }
-
-
 
 } // end of class
 
