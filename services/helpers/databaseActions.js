@@ -8,18 +8,18 @@ let db = new sqlite3.Database('./db/races.db', (err) => {
 });
 
 var databaseActions = {
-  getDrivers() {
-    let db = new sqlite3.Database('./db/races.db');
-    let sql = `SELECT * FROM drivers`;
-    const drivers = db.all(sql, [], (err, rows) => {
-      if (err) {
-        return console.error(err.message);
-      }
-      return rows;
-    });
+  // getDrivers() {
+  //   let db = new sqlite3.Database('./db/races.db');
+  //   let sql = `SELECT * FROM drivers`;
+  //   const drivers = db.all(sql, [], (err, rows) => {
+  //     if (err) {
+  //       return console.error(err.message);
+  //     }
+  //     return rows;
+  //   });
 
-    return drivers;
-  },
+  //   return drivers;
+  // },
   // async messageToObject(message, raceID) {
 
   //   const messageTabs = message.split('\t');

@@ -1,6 +1,10 @@
 const TimingSystemSingleton = require('./TimingSystemSingleton');
 const { v4: uuidv4 } = require('uuid');
+const Driver = require('./driver');
 
+async function getAllTheDrivers() {
+  return await Driver.GetAll();
+}
 class PrivateRaceSingleton {
   constructor(raceLength) {
     this.raceID = '0000';
@@ -12,6 +16,7 @@ class PrivateRaceSingleton {
     this.uniqueTransponders = [];
     this.fastestLap = 999999;
     this.fatstestLapTransponder = '';
+    this.allDrivers = [];
   }
 
   async startRace() {
@@ -30,7 +35,7 @@ class PrivateRaceSingleton {
     //   raceLength: this.raceLength,
     //   startTime: this.startTime
     // });
-
+    this.allDrivers = await getAllTheDrivers();
   }
 
   async passNewRaceMessage(message) {
@@ -66,11 +71,18 @@ class PrivateRaceSingleton {
       }
 
     } else {
-
       this.uniqueTransponders.push(transponder);
+
+      let racerNameFromDB;
+      this.allDrivers.forEach(driver => {
+        if (driver.transponderId == transponder) {
+          racerNameFromDB = driver.realName;
+        }
+      });
+
       this.racers.push({
         transponderId: transponder,
-        racerName: 'Pip',
+        racerName: racerNameFromDB,
         lapZeroStartTime: message.timeSeconds,
         previousLapStartTime: message.timeSeconds,
         totalLaps: 0,
@@ -103,6 +115,7 @@ class PrivateRaceSingleton {
     this.uniqueTransponders = [];
 
   }
+
 }
 class RaceSingleton {
   constructor() {
