@@ -1,6 +1,7 @@
 const TimingSystemSingleton = require('./TimingSystemSingleton');
 const { v4: uuidv4 } = require('uuid');
-const Driver = require('./driver');
+const Driver = require('./Driver');
+const databaseActions = require('./helpers/databaseActions');
 
 async function getAllTheDrivers() {
   return await Driver.GetAll();
@@ -15,7 +16,7 @@ class PrivateRaceSingleton {
     this.racers = [];
     this.uniqueTransponders = [];
     this.fastestLap = 999999;
-    this.fatstestLapTransponder = '';
+    this.fastestLapTransponder = '';
     this.allDrivers = [];
   }
 
@@ -25,16 +26,7 @@ class PrivateRaceSingleton {
     const timingSystem = TimingSystemSingleton.getInstance();
     timingSystem.openPort(this);
     this.raceRunning = true;
-
-    // record start time of the race (not the first message time)
     this.startTime = new Date();
-
-    //write new race details to DB - will remove
-    // databaseActions.createNewRace({
-    //   raceID: this.raceID,
-    //   raceLength: this.raceLength,
-    //   startTime: this.startTime
-    // });
     this.allDrivers = await getAllTheDrivers();
   }
 
@@ -67,7 +59,7 @@ class PrivateRaceSingleton {
       // check if this is the new fastest lap
       if (laptime <= this.fastestLap) {
         this.fastestLap = laptime;
-        this.fatstestLapTransponder = transponder;
+        this.fastestLapTransponder = transponder;
       }
 
     } else {
@@ -99,7 +91,7 @@ class PrivateRaceSingleton {
       uniqueTransponders: this.uniqueTransponders,
       raceData: this.racers,
       fastestLap: {
-        transponder: this.fatstestLapTransponder,
+        transponder: this.fastestLapTransponder,
         lapTime: this.fastestLap
       }
     };
@@ -110,6 +102,18 @@ class PrivateRaceSingleton {
     this.finishTime = new Date();
     const timingSystem = TimingSystemSingleton.getInstance();
     timingSystem.closePort();
+
+    // write race details to DB
+    databaseActions.createNewRace({
+      raceID: this.raceID,
+      raceLength: this.raceLength,
+      startTime: this.startTime,
+      racers: this.racers,
+      uniqueTransponders: this.uniqueTransponders,
+      fastestLap: this.fastestLap,
+      fastestLapTransponder: this.fastestLapTransponder,
+    });
+
     // cleanup
     this.racers = [];
     this.uniqueTransponders = [];

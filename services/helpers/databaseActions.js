@@ -1,4 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
+const Promise = require('bluebird');
+
 let db = new sqlite3.Database('./db/races.db', (err) => {
   if (err) {
     console.error(err.message);
@@ -8,50 +10,64 @@ let db = new sqlite3.Database('./db/races.db', (err) => {
 });
 
 var databaseActions = {
-  // getDrivers() {
-  //   let db = new sqlite3.Database('./db/races.db');
-  //   let sql = `SELECT * FROM drivers`;
-  //   const drivers = db.all(sql, [], (err, rows) => {
-  //     if (err) {
-  //       return console.error(err.message);
-  //     }
-  //     return rows;
-  //   });
 
-  //   return drivers;
-  // },
-  // async messageToObject(message, raceID) {
+  getAllDrivers() {
+    let sql = `SELECT * FROM drivers`;
 
-  //   const messageTabs = message.split('\t');
-  //   let messageObj = {}
-  //   if (messageTabs[0].substring(1, 3) === '@') {
-  //     messageObj = {
-  //       sor: messageTabs[0],
-  //       command: messageTabs[0].substring(1, 3),
-  //       decoderId: messageTabs[1],
-  //       recordSeq: messageTabs[2],
-  //       transponderId: messageTabs[3],
-  //       timeSeconds: messageTabs[4]
-  //     }
+    return new Promise((resolve, reject) => {
+      db.all(sql, (err, rows) => {
+        if (err) {
+          console.error(err.message);
+          reject(err)
+        } else {
+          return resolve(rows)
+        }
+      })
+    })
+  },
+  saveNewDriver(transponderId, realName) {
+    const messageParams = {
+      $transponderId: transponderId,
+      $realName: realName
+    }
 
-  //     writeMessageObjectToDB(messageObj, RaceID)
+    let sql = 'INSERT INTO drivers(transponderId, realName) VALUES($transponderId ,$realName)';
 
-  //   } else if (messageTabs[0].substring(1, 3) === '#') {
-  //     console.log('keepalive', messageTabs);
-  //   }
+    return new Promise((resolve, reject) => {
+      db.run(sql, messageParams, (err, res) => {
+        if (err) {
+          console.error(err.message);
+          reject(err)
+        } else {
+          return resolve(res);
+        }
+      })
+    })
 
-  //   return messageObj;
-  // },
+  },
 
   createNewRace(raceDetails) {
-    const { raceID, raceLength, startTime } = raceDetails;
+    const {
+      raceID,
+      raceLength,
+      startTime,
+      racers,
+      uniqueTransponders,
+      fastestLap,
+      fastestLapTransponder
+    } = raceDetails;
     const params = {
       $raceID: raceID,
       $raceLength: raceLength,
-      $startTime: startTime
+      $startTime: startTime,
+      $racers: JSON.stringify(racers),
+      $uniqueTransponders: uniqueTransponders.toString(),
+      $fastestLap: fastestLap,
+      $fastestLapTransponder: fastestLapTransponder
     }
-    const sql = 'INSERT INTO current_race(race_id, race_length, race_start_time) VALUES($raceID ,$raceLength, $startTime)';
-    db.run(sql, params, ['C'], function (err) {
+    const sql = 'INSERT INTO saved_races(race_id, race_length, race_start_time,racers, uniqueTransponders,fastestLap, fastestLapTransponder) '
+    const sqlValues = 'VALUES($raceID, $raceLength, $startTime, $racers, $uniqueTransponders, $fastestLap, $fastestLapTransponder)';
+    db.run(sql + sqlValues, params, ['C'], function (err) {
       if (err) {
         return console.log(err.message);
       } else {
@@ -60,46 +76,6 @@ var databaseActions = {
     })
   },
 
-  insertRaceMessage(raceID, messageAsAString) {
-    const messageParams = {
-      $raceid: raceID || 'test',
-      $message: messageAsAString
-    }
-    const sql = 'INSERT INTO session_messages(raceid, message) VALUES($raceid ,$message)';
-    db.run(sql, messageParams, ['C'], function (err) {
-      if (err) {
-        return console.log(err.message);
-      }
-    });
-  },
-
-  updateRaceStartTime(raceID, raceStartTime) {
-    const messageParams = {
-      $raceid: raceID,
-      $starttime: raceStartTime
-    }
-
-    const sql = 'UPDATE current_race SET first_race_message_time = $starttime WHERE(race_id = $raceid)';
-    db.run(sql, messageParams, ['C'], function (err) {
-      if (err) {
-        return console.log('here', err.message);
-      }
-    });
-  },
-
-  getRaceStartFromDB(raceID) {
-    let db = new sqlite3.Database('./db/races.db');
-    let sql = `SELECT first_race_message_time FROM current_race WHERE race_id = '${raceID}'`;
-    let raceStartTime;
-    db.get(sql, [], (err, row) => {
-      if (err) {
-        return console.error(err.message);
-      }
-
-      raceStartTime = row.first_race_message_time;
-      return raceStartTime;
-    });
-  }
 }
 
 module.exports = databaseActions;
