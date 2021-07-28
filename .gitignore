@@ -4,5 +4,4 @@ npm-debug.log
 .env
 .DS_Store
 package-lock.json
-db/races.db
 node_modules/.package-lock.json
