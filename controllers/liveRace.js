@@ -1,8 +1,8 @@
-var TestData = require('../services/testData');
+const Utilities = require('../services/helpers/utilities');
+const RaceSingleton = require('../services/RaceSingleton');
 var raceDataGlobal = [];
 var currentRaceId = '';
 const fixedTransponders = ['1006319', '1003456', '1003666'];
-const RaceSingleton = require('../services/RaceSingleton');
 
 const liveRaceController = {
 
@@ -39,7 +39,7 @@ const liveRaceController = {
         if (thisTransponderTimes.length) {
             lastLapTime = thisTransponderTimes[thisTransponderTimes.length - 1].timeSeconds
         }
-        const result = await TestData.saveFakeLap(randomTransponder, lastLapTime);
+        const result = await Utilities.saveFakeLap(randomTransponder, lastLapTime);
         raceDataGlobal.push(result);
 
         const race = RaceSingleton.getInstance();
