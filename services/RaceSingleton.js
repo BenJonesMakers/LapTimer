@@ -32,6 +32,8 @@ class PrivateRaceSingleton {
     this.fastestLap = 999999;
     this.fastestLapTransponder = '';
     this.allDrivers = [];
+    this.driversFinishedRunning = [];
+    this.lastLap = false;
   }
 
   async startRace() {
@@ -61,19 +63,23 @@ class PrivateRaceSingleton {
       this.racers[foundIndex].totalTime += laptime;
       this.racers[foundIndex].totalLaps += 1;
 
-      // update the laps sub array
-      this.racers[foundIndex].laps.push(
-        {
-          transponderId: transponder,
-          lapNo: this.racers[foundIndex].totalLaps,
-          laptime: laptime
-        }
-      );
-
       // check if this is the new fastest lap
       if (laptime <= this.fastestLap) {
         this.fastestLap = laptime;
         this.fastestLapTransponder = transponder;
+      }
+
+      if (this.lastLap && !this.driversFinishedRunning.includes(foundRacer)) {
+        this.driversFinishedRunning.push(foundRacer);
+      } else if (!this.lastLap && !this.driversFinishedRunning.includes(foundRacer)) {
+        // update the laps sub array
+        this.racers[foundIndex].laps.push(
+          {
+            transponderId: transponder,
+            lapNo: this.racers[foundIndex].totalLaps,
+            laptime: laptime
+          }
+        );
       }
 
     } else {
@@ -112,8 +118,13 @@ class PrivateRaceSingleton {
   }
 
   async endRace() {
-    // Get the last laps etc
+
+    this.lastLap = true;
     console.log('sortedFinalData', sortedRaceData(this.racers));
+    // idea for this: create an array with all the racers and pop them off as they complete the last lap
+    // starting with the winner.
+    const winingTransponder = sortedRaceData(this.racers)[0].transponderId;
+    this.driversFinishedRunning.push(winingTransponder);
 
     // clean up after 10 seconds
     // TODO: work out how to end either when everyone has finshed or after 10 seconds.
@@ -137,6 +148,8 @@ class PrivateRaceSingleton {
       // cleanup
       this.racers = [];
       this.uniqueTransponders = [];
+      this.lastLap = false;
+      this.driversFinishedRunning = [];
     }, 10000);
   }
 
