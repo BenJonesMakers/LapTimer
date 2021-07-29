@@ -6,6 +6,20 @@ const databaseActions = require('./helpers/databaseActions');
 async function getAllTheDrivers() {
   return await Driver.GetAll();
 }
+
+function sortedRaceData(raceData) {
+  if (raceData && raceData.length) {
+    return raceData
+      .sort((a, b) => {
+        // Sorts first by number of laps and then by shortest time
+        var n = b.totalLaps - a.totalLaps;
+        if (n !== 0) {
+          return n;
+        }
+        return a.totalTime - b.totalTime;
+      });
+  }
+};
 class PrivateRaceSingleton {
   constructor(raceLength) {
     this.raceID = '0000';
@@ -89,7 +103,7 @@ class PrivateRaceSingleton {
     return {
       raceID: this.raceID,
       uniqueTransponders: this.uniqueTransponders,
-      raceData: this.racers,
+      raceData: sortedRaceData(this.racers), // was this.racers,
       fastestLap: {
         transponder: this.fastestLapTransponder,
         lapTime: this.fastestLap
@@ -98,26 +112,32 @@ class PrivateRaceSingleton {
   }
 
   async endRace() {
-    this.raceRunning = false;
-    this.finishTime = new Date();
-    const timingSystem = TimingSystemSingleton.getInstance();
-    timingSystem.closePort();
+    // Get the last laps etc
+    console.log('sortedFinalData', sortedRaceData(this.racers));
 
-    // write race details to DB
-    databaseActions.createNewRace({
-      raceID: this.raceID,
-      raceLength: this.raceLength,
-      startTime: this.startTime,
-      racers: this.racers,
-      uniqueTransponders: this.uniqueTransponders,
-      fastestLap: this.fastestLap,
-      fastestLapTransponder: this.fastestLapTransponder,
-    });
+    // clean up after 10 seconds
+    // TODO: work out how to end either when everyone has finshed or after 10 seconds.
+    setTimeout(() => {
+      this.raceRunning = false;
+      this.finishTime = new Date();
+      const timingSystem = TimingSystemSingleton.getInstance();
+      timingSystem.closePort();
 
-    // cleanup
-    this.racers = [];
-    this.uniqueTransponders = [];
+      // write race details to DB
+      databaseActions.createNewRace({
+        raceID: this.raceID,
+        raceLength: this.raceLength,
+        startTime: this.startTime,
+        racers: this.racers,
+        uniqueTransponders: this.uniqueTransponders,
+        fastestLap: this.fastestLap,
+        fastestLapTransponder: this.fastestLapTransponder,
+      });
 
+      // cleanup
+      this.racers = [];
+      this.uniqueTransponders = [];
+    }, 10000);
   }
 
 }
