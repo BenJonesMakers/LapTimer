@@ -49,6 +49,7 @@ class PrivateRaceSingleton {
   async passNewRaceMessage(message) {
     const transponder = message.transponderId.toString();
     const messageTime = parseFloat(message.timeSeconds);
+    const isDriverFinished = (passedTransponder) => this.driversFinishedRunning.includes(passedTransponder);
 
     // check if we have an object for this transponder, if we do update if not create one:
     let foundRacer;
@@ -69,9 +70,13 @@ class PrivateRaceSingleton {
         this.fastestLapTransponder = transponder;
       }
 
-      if (this.lastLap && !this.driversFinishedRunning.includes(foundRacer)) {
-        this.driversFinishedRunning.push(foundRacer);
-      } else if (!this.lastLap && !this.driversFinishedRunning.includes(foundRacer)) {
+
+      if (this.lastLap && isDriverFinished(transponder)) return;
+
+      if (this.lastLap && !isDriverFinished(transponder)) {
+        console.log('last lap - pushing ', transponder);
+        this.driversFinishedRunning.push(transponder);
+      } else if (!this.lastLap && !isDriverFinished(transponder)) {
         // update the laps sub array
         this.racers[foundIndex].laps.push(
           {
@@ -120,14 +125,15 @@ class PrivateRaceSingleton {
   async endRace() {
 
     this.lastLap = true;
-    console.log('sortedFinalData', sortedRaceData(this.racers));
     // idea for this: create an array with all the racers and pop them off as they complete the last lap
     // starting with the winner.
     const winingTransponder = sortedRaceData(this.racers)[0].transponderId;
+    console.log('pushing winning transponder - ', winingTransponder);
     this.driversFinishedRunning.push(winingTransponder);
 
     // clean up after 10 seconds
     // TODO: work out how to end either when everyone has finshed or after 10 seconds.
+    // maybe sort both the array for driversFinishedRunning and unique transponder array and compare?
     setTimeout(() => {
       this.raceRunning = false;
       this.finishTime = new Date();
