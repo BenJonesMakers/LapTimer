@@ -45,7 +45,20 @@ var databaseActions = {
     })
 
   },
+  getAllRaces() {
+    let sql = `SELECT * FROM saved_races`;
 
+    return new Promise((resolve, reject) => {
+      db.all(sql, (err, rows) => {
+        if (err) {
+          console.error(err.message);
+          reject(err)
+        } else {
+          return resolve(rows)
+        }
+      })
+    })
+  },
   createNewRace(raceDetails) {
     const {
       raceID,
