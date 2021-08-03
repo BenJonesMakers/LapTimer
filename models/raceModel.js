@@ -1,50 +1,50 @@
-var mongoose = require('mongoose');
+// var mongoose = require('mongoose');
 
-var schema = new mongoose.Schema({
+// var schema = new mongoose.Schema({
 
-    date: {
-        type: Date,
-        required: true
-    },
+//     date: {
+//         type: Date,
+//         required: true
+//     },
 
-    name: {
-        type: String
-    },
+//     name: {
+//         type: String
+//     },
 
-    drivers: {
-        type: Array
-    },
+//     drivers: {
+//         type: Array
+//     },
 
-    split: {
-        type: String
-    },
+//     split: {
+//         type: String
+//     },
 
-    type: {
-        type: String
-    },
+//     type: {
+//         type: String
+//     },
 
-    totalTime: {
-        type: String
-    },
+//     totalTime: {
+//         type: String
+//     },
 
-    winningTime: {
-        type: String
-    },
+//     winningTime: {
+//         type: String
+//     },
 
-    winningDriver: {
-        type: String
-    },
+//     winningDriver: {
+//         type: String
+//     },
 
-    grid: {
-        type: Array
-    },
-    
-    results: {
-        type: Array
-    }
+//     grid: {
+//         type: Array
+//     },
 
-});
+//     results: {
+//         type: Array
+//     }
 
-const Race = mongoose.model("race", schema);
+// });
 
-module.exports = Race;
+// const Race = mongoose.model("race", schema);
+
+// module.exports = Race;

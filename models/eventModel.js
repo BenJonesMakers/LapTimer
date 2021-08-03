@@ -1,33 +1,33 @@
-var mongoose = require('mongoose');
+// var mongoose = require('mongoose');
 
-var schema = new mongoose.Schema({
+// var schema = new mongoose.Schema({
 
-    name: {
-        type: String
-    },
+//     name: {
+//         type: String
+//     },
 
-    date: {
-        type: Date,
-        required: true
-    },
+//     date: {
+//         type: Date,
+//         required: true
+//     },
 
-    attendies: {
-        type: Array
-    },
-    attendiesPaid: {
-        type: Array
-    },
+//     attendies: {
+//         type: Array
+//     },
+//     attendiesPaid: {
+//         type: Array
+//     },
 
-    races: {
-        type: Array
-    },
+//     races: {
+//         type: Array
+//     },
 
-    results: {
-        type: Array
-    }
+//     results: {
+//         type: Array
+//     }
 
-});
+// });
 
-const Event = mongoose.model("event", schema);
+// const Event = mongoose.model("event", schema);
 
-module.exports = Event;
+// module.exports = Event;

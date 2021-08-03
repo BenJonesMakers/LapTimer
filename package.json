@@ -14,7 +14,6 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "^0.29.0",
-    "mongoose": "^5.11.8",
     "morgan": "~1.9.1",
     "p3lib": "^2.7.1",
     "serialport": "^9.0.4",
