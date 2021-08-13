@@ -6,6 +6,7 @@ var logger = require('morgan');
 require('dotenv').config();
 const cors = require('cors')
 
+console.log('ENV', process.env.NODE_ENV);
 
 // // connect Mongoose Cloud DB
 // try {
