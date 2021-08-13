@@ -161,14 +161,7 @@ class PrivateRaceSingleton {
 
     this.lastLap = true;
     this.raceStatusBackend = 'finishing';
-    // idea for this: create an array with all the racers and pop them off as they complete the last lap
-    // starting with the winner.
-    if (this.racers && this.racers.length > 0) {
-      const winingTransponder = sortedRaceData(this.racers)[0].transponderId;
-      console.log('pushing winning transponder - ', winingTransponder);
-      this.driversFinishedRunning.push(winingTransponder);
-    }
-    // clean up after 10 seconds or all drivers are finished
+
     function stopFunction() {
       clearInterval(carChecker);
     }
@@ -191,6 +184,7 @@ class PrivateRaceSingleton {
         stopFunction();
         this.countBeforeEnd = 10;
         this.raceStatusBackend = 'complete';
+        this.raceCloseDown();
       }
     };
   }
