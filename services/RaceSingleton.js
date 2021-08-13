@@ -91,9 +91,6 @@ class PrivateRaceSingleton {
     if (foundRacer) {
       let foundIndex = this.racers.indexOf(foundRacer);
       const laptime = messageTime - this.racers[foundIndex].previousLapStartTime;
-      this.racers[foundIndex].previousLapStartTime = messageTime;
-      this.racers[foundIndex].totalTime += laptime;
-      this.racers[foundIndex].totalLaps += 1;
 
       // check if this is the new fastest lap
       if (laptime <= this.fastestLap) {
@@ -106,19 +103,23 @@ class PrivateRaceSingleton {
 
       if (this.raceStatusBackend === 'complete') return;
 
-      if (this.lastLap && !isDriverFinished(transponder)) {
+      if (isDriverFinished(transponder)) return;
+
+      if (this.lastLap) {
         console.log('last lap - pushing ', transponder);
         this.driversFinishedRunning.push(transponder);
-      } else if (!this.lastLap && !isDriverFinished(transponder)) {
-        // update the laps sub array
-        this.racers[foundIndex].laps.push(
-          {
-            transponderId: transponder,
-            lapNo: this.racers[foundIndex].totalLaps,
-            laptime: laptime
-          }
-        );
       }
+
+      this.racers[foundIndex].previousLapStartTime = messageTime;
+      this.racers[foundIndex].totalTime += laptime;
+      this.racers[foundIndex].totalLaps = this.racers[foundIndex].totalLaps + 1;
+      this.racers[foundIndex].laps.push(
+        {
+          transponderId: transponder,
+          lapNo: this.racers[foundIndex].totalLaps,
+          laptime: laptime
+        }
+      );
 
     } else {
       this.uniqueTransponders.push(transponder);
