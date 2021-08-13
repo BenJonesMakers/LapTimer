@@ -2,7 +2,7 @@ const Utilities = require('../services/helpers/utilities');
 const RaceSingleton = require('../services/RaceSingleton');
 var raceDataGlobal = [];
 var currentRaceId = '';
-const fixedTransponders = ['1006319', '1003456', '1003666'];
+const fixedTransponders = ['1006319', '1003456', '1003666', '1003197'];
 
 const liveRaceController = {
 
