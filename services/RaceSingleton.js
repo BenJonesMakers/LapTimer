@@ -3,6 +3,10 @@ const { v4: uuidv4 } = require('uuid');
 const Driver = require('./Driver');
 const databaseActions = require('./helpers/databaseActions');
 
+function stopFunction() {
+  clearInterval(carChecker);
+}
+
 async function getAllTheDrivers() {
   return await Driver.GetAll();
 }
@@ -20,9 +24,11 @@ function sortedRaceData(raceData) {
       });
   }
 };
+
 class PrivateRaceSingleton {
   constructor(raceLength) {
     this.raceID = '0000';
+    this.raceStatusBackend = 'notstarted';
     this.raceLength = raceLength;
     this.raceRunning = false;
     this.startTimeStamp = null;
@@ -34,14 +40,39 @@ class PrivateRaceSingleton {
     this.allDrivers = [];
     this.driversFinishedRunning = [];
     this.lastLap = false;
+    this.countBeforeEnd = 10;
+
+    this.raceCloseDown = () => {
+      this.raceRunning = false;
+      this.finishTime = new Date();
+      const timingSystem = TimingSystemSingleton.getInstance();
+      timingSystem.closePort();
+
+      // write race details to DB
+      databaseActions.createNewRace({
+        raceID: this.raceID,
+        raceLength: this.raceLength,
+        startTime: this.startTime,
+        racers: this.racers,
+        uniqueTransponders: this.uniqueTransponders,
+        fastestLap: this.fastestLap,
+        fastestLapTransponder: this.fastestLapTransponder,
+      });
+    };
   }
 
   async startRace() {
-
+    // cleanup
+    this.racers = [];
+    this.uniqueTransponders = [];
+    this.lastLap = false;
+    this.driversFinishedRunning = [];
+    // starting race
     this.raceID = uuidv4();
     const timingSystem = TimingSystemSingleton.getInstance();
     timingSystem.openPort(this);
     this.raceRunning = true;
+    this.raceStatusBackend = 'running';
     this.startTime = new Date();
     this.allDrivers = await getAllTheDrivers();
   }
@@ -72,6 +103,8 @@ class PrivateRaceSingleton {
 
 
       if (this.lastLap && isDriverFinished(transponder)) return;
+
+      if (this.raceStatusBackend === 'complete') return;
 
       if (this.lastLap && !isDriverFinished(transponder)) {
         console.log('last lap - pushing ', transponder);
@@ -113,6 +146,7 @@ class PrivateRaceSingleton {
   async getRaceData() {
     return {
       raceID: this.raceID,
+      raceStatusBackend: this.raceStatusBackend,
       uniqueTransponders: this.uniqueTransponders,
       raceData: sortedRaceData(this.racers), // was this.racers,
       fastestLap: {
@@ -125,6 +159,7 @@ class PrivateRaceSingleton {
   async endRace() {
 
     this.lastLap = true;
+    this.raceStatusBackend = 'finishing';
     // idea for this: create an array with all the racers and pop them off as they complete the last lap
     // starting with the winner.
     if (this.racers && this.racers.length > 0) {
@@ -132,33 +167,31 @@ class PrivateRaceSingleton {
       console.log('pushing winning transponder - ', winingTransponder);
       this.driversFinishedRunning.push(winingTransponder);
     }
-    // clean up after 10 seconds
-    // TODO: work out how to end either when everyone has finshed or after 10 seconds.
-    // maybe sort both the array for driversFinishedRunning and unique transponder array and compare?
-    setTimeout(() => {
-      this.raceRunning = false;
-      this.finishTime = new Date();
-      const timingSystem = TimingSystemSingleton.getInstance();
-      timingSystem.closePort();
+    // clean up after 10 seconds or all drivers are finished
+    function stopFunction() {
+      clearInterval(carChecker);
+    }
 
-      // write race details to DB
-      databaseActions.createNewRace({
-        raceID: this.raceID,
-        raceLength: this.raceLength,
-        startTime: this.startTime,
-        racers: this.racers,
-        uniqueTransponders: this.uniqueTransponders,
-        fastestLap: this.fastestLap,
-        fastestLapTransponder: this.fastestLapTransponder,
-      });
+    let carChecker = setInterval(() => { checkAllCarsFinished() }, 1000);
 
-
-      // cleanup
-      this.racers = [];
-      this.uniqueTransponders = [];
-      this.lastLap = false;
-      this.driversFinishedRunning = [];
-    }, 10000);
+    const checkAllCarsFinished = () => {
+      console.log('checking all cars');
+      this.countBeforeEnd--;
+      console.log('countdownNum', this.countBeforeEnd);
+      if (this.countBeforeEnd > 0) {
+        console.log('drivers finished', this.driversFinishedRunning);
+        if (this.driversFinishedRunning.length === this.uniqueTransponders.length) {
+          stopFunction();
+          this.countBeforeEnd = 10;
+          this.raceStatusBackend = 'complete';
+          this.raceCloseDown();
+        }
+      } else {
+        stopFunction();
+        this.countBeforeEnd = 10;
+        this.raceStatusBackend = 'complete';
+      }
+    };
   }
 
 }
